@@ -28,7 +28,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      const basePath = import.meta.env.BASE_URL || '/msucre-frontend';
+      window.location.href = basePath + '/login';
     }
     return Promise.reject(error);
   }
