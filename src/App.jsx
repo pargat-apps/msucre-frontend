@@ -73,7 +73,7 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <Router basename="/">
+    <Router basename="/msucre-frontend">
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
