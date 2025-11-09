@@ -4,10 +4,8 @@ import { FaShoppingCart, FaTag, FaGift, FaClock } from 'react-icons/fa';
 import api from '../utils/api';
 import { formatPrice } from '../utils/helpers';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { useTranslation } from '../hooks/useTranslation';
-import { saveRedirectUrl } from '../utils/redirect';
 import Loading from '../components/Loading';
 
 const ComboDetail = () => {
@@ -15,7 +13,6 @@ const ComboDetail = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [combo, setCombo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,15 +39,7 @@ const ComboDetail = () => {
   };
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      saveRedirectUrl(`/combos/${id}`);
-      toast.error(t('cart.loginRequired'), 3000);
-      setTimeout(() => {
-        navigate('/register');
-      }, 1000);
-      return;
-    }
-
+    // Allow guests to add items to cart (authentication required only at checkout)
     if (!combo.isActive) {
       toast.error('This combo is currently unavailable');
       return;

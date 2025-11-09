@@ -3,35 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaStar, FaHeart } from 'react-icons/fa';
 import { formatPrice } from '../utils/helpers';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
-import { saveRedirectUrl } from '../utils/redirect';
 import { useTranslation } from '../hooks/useTranslation';
 
 const ProductCard = ({ product }) => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      // Save current product page URL for redirect after login/registration
-      saveRedirectUrl(`/products/${product.slug}`);
-      
-      // Show message and redirect to registration
-      toast.error(t('cart.loginRequired'), 3000);
-      setTimeout(() => {
-        navigate('/register');
-      }, 1000);
-      return;
-    }
-
-    // User is authenticated, proceed with adding to cart
+    // Allow guests to add items to cart (authentication required only at checkout)
     addToCart({
       productId: product._id,
       title: product.title,

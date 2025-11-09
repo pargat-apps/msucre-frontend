@@ -110,23 +110,29 @@ const Cart = () => {
               {!isAuthenticated && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-yellow-800 mb-2">{t('cart.loginRequired')}</p>
-                  <Link to="/login" className="text-sm text-primary-600 hover:underline">
-                    {t('cart.loginNow')}
-                  </Link>
+                  <div className="flex space-x-2">
+                    <Link to="/login" className="text-sm text-primary-600 hover:underline font-semibold">
+                      {t('cart.loginNow')}
+                    </Link>
+                    <span className="text-sm text-gray-500">or</span>
+                    <Link to="/register" className="text-sm text-primary-600 hover:underline font-semibold">
+                      Register
+                    </Link>
+                  </div>
                 </div>
               )}
 
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
-                    navigate('/login');
+                    navigate('/register');
                     return;
                   }
                   navigate('/checkout');
                 }}
                 className="btn-primary w-full mb-4"
               >
-                {t('cart.checkout')}
+                {isAuthenticated ? t('cart.checkout') : 'Login to Checkout'}
               </button>
 
               <Link to="/catalog" className="block text-center text-primary-600 hover:underline">

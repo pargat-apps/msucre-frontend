@@ -3,10 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaStar, FaShoppingCart, FaClock, FaCheck } from 'react-icons/fa';
 import api from '../utils/api';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { formatPrice } from '../utils/helpers';
-import { saveRedirectUrl } from '../utils/redirect';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -14,7 +12,6 @@ const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -64,20 +61,7 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      // Save current page URL for redirect after login/registration
-      saveRedirectUrl(`/products/${slug}`);
-      
-      // Show message and redirect to registration
-      toast.error('Please login or register to add items to cart', 3000);
-      setTimeout(() => {
-        navigate('/register');
-      }, 1000);
-      return;
-    }
-
-    // User is authenticated, proceed with adding to cart
+    // Allow guests to add items to cart (authentication required only at checkout)
     const price = selectedSize && product.sizeOptions
       ? product.sizeOptions.find(s => s.size === selectedSize)?.price || product.price
       : product.price;
