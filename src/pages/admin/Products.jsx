@@ -62,43 +62,47 @@ const Products = () => {
       // Auto-generate slug from title if not provided
       const slug = formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       
-      let imageUrl = formData.images[0]?.url || '';
-
-      // If file was uploaded, upload it first
-      if (uploadedImage) {
-        const formDataUpload = new FormData();
-        formDataUpload.append('image', uploadedImage);
-        
-        try {
-          // For now, we'll use a placeholder. In production, upload to Cloudinary/S3
-          // You can implement actual upload endpoint later
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            imageUrl = reader.result; // Base64 for now (not ideal for production)
-          };
-          reader.readAsDataURL(uploadedImage);
-          
-          // Wait a bit for the FileReader
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          toast.info('Note: For production, configure Cloudinary or S3 for image hosting', 4000);
-        } catch (uploadError) {
-          toast.error('Image upload failed. Using URL instead.');
-        }
-      }
+      // Create FormData for multipart upload
+      const formDataToSend = new FormData();
       
-      const productData = {
-        ...formData,
-        slug,
-        price: parseFloat(formData.price),
-        images: [{ url: imageUrl || formData.images[0]?.url, alt: formData.title }]
-      };
+      // Append all product fields
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('slug', slug);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('price', parseFloat(formData.price));
+      formDataToSend.append('flavor', formData.flavor);
+      formDataToSend.append('leadTimeDays', formData.leadTimeDays);
+      formDataToSend.append('sampleEligible', formData.sampleEligible);
+      formDataToSend.append('isBestseller', formData.isBestseller);
+      formDataToSend.append('isPrepaid', formData.isPrepaid);
+      formDataToSend.append('isBento', formData.isBento);
+      formDataToSend.append('available', formData.available);
+      
+      // Append arrays as JSON strings
+      formDataToSend.append('categories', JSON.stringify(formData.categories));
+      formDataToSend.append('allergens', JSON.stringify(formData.allergens));
+      
+      // If file was uploaded, append it
+      if (uploadedImage) {
+        formDataToSend.append('images', uploadedImage);
+      } else if (formData.images[0]?.url) {
+        // If using URL instead of file, append as JSON
+        formDataToSend.append('images', JSON.stringify(formData.images));
+      }
 
       if (editingProduct) {
-        await api.put(`/products/${editingProduct._id}`, productData);
+        await api.put(`/products/${editingProduct._id}`, formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
         toast.success('Product updated successfully! ✅');
       } else {
-        await api.post('/products', productData);
+        await api.post('/products', formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
         toast.success('Product created successfully! 🎂');
       }
 
@@ -109,6 +113,7 @@ const Products = () => {
       setImagePreview(null);
       fetchProducts();
     } catch (error) {
+      console.error('Error saving product:', error);
       toast.error(error.response?.data?.message || 'Failed to save product');
     }
   };
@@ -484,9 +489,6 @@ const Products = () => {
                           <span>Selected: {uploadedImage.name}</span>
                         </div>
                       )}
-                      <p className="text-xs text-yellow-600 mt-2">
-                        💡 Tip: For production, configure Cloudinary or AWS S3 for permanent storage
-                      </p>
                     </div>
                   )}
 
