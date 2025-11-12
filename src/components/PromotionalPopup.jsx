@@ -30,7 +30,11 @@ const PromotionalPopup = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching popup config:', error);
+      // Silently handle 404 errors (expected if popup config not set)
+      if (error.response?.status !== 404) {
+        console.error('Error fetching popup config:', error);
+      }
+      // Popup simply won't show if config doesn't exist
     }
   };
 
