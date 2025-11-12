@@ -19,10 +19,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// GitHub Pages configuration (default)
-export default defineConfig({
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: '/msucre-frontend/', // GitHub Pages base path
+  // Use '/' for development, '/msucre-frontend/' for production (GitHub Pages)
+  base: mode === 'production' ? '/msucre-frontend/' : '/',
   server: {
     port: 3000,
     proxy: {
@@ -43,5 +44,5 @@ export default defineConfig({
       }
     }
   }
-});
+}));
 

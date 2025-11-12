@@ -72,8 +72,11 @@ const Layout = ({ children }) => {
 };
 
 function App() {
+  // Use basename only in production (GitHub Pages), not in development
+  const basename = import.meta.env.MODE === 'production' ? '/msucre-frontend' : '/';
+  
   return (
-    <Router basename="/msucre-frontend">
+    <Router basename={basename}>
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
